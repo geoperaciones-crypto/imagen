@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡Felicidades! Alguien pensó en ti · GrupoDent</title>
+<meta name="description" content="Te regalaron una evaluación dental gratis en GrupoDent. Toca para abrir tu tarjeta.">
+
+<!-- Vista previa en WhatsApp, Facebook, Messenger y otros -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GrupoDent Especialistas Dentales">
+<meta property="og:title" content="¡Felicidades! Alguien pensó en ti 🎁">
+<meta property="og:description" content="Te regalaron una evaluación dental gratis en GrupoDent. Toca para abrir tu tarjeta.">
+<meta property="og:image" content="https://geoperaciones-crypto.github.io/imagen/preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tarjeta de GrupoDent: Alguien pensó en ti, te regalaron una evaluación dental gratis">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #2A2C5E; color: #fff; text-align: center; padding: 24px; }
+  a { color: #F08320; font-weight: 700; }
+  p { font-size: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <p>Abriendo tu tarjeta…</p>
+  <p><a id="ir" href="#">Toca aquí si no se abre sola</a></p>
+</main>
+<script>
+  // Dirección de la app de Referidos (termina en /exec).
+  var URL_APP = "https://script.google.com/a/grupodent.com.gt/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ouslptCZ_RTp5LhBCOldIZTjw5w/exec";
+
+  var token = (new URLSearchParams(location.search).get("t") || "").replace(/[^A-Za-z0-9]/g, "");
+  var destino = URL_APP + "?t=" + encodeURIComponent(token);
+  document.getElementById("ir").href = destino;
+  if (token) location.replace(destino);
+</script>
+<noscript><p><a href="https://script.google.com/a/grupodent.com.gt/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ouslptCZ_RTp5LhBCOldIZTjw5w/exec">Abrir mi tarjeta</a></p></noscript>
+</body>
+</html>
