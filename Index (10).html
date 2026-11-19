@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referidos de Doctores · GrupoDent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<?!= include('Logo') ?>
+<style>
+  :root {
+    --navy: #2A2C5E; --navy-deep: #1A1C42; --orange: #F08320; --orange-d: #D86F0E; --orange-soft: #FDEBD6;
+    --lav: #ECEDF6; --bg: #F4F5FA; --line: #DEE0EE; --ink: #1D1F45; --muted: #666A8C;
+    --ok: #2E7D32; --ok-bg: #E4F4E7; --bad: #B3261E; --bad-bg: #FBE4E2; --info: #3E4290; --info-bg: #E5E7F7;
+    --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.45; -webkit-text-size-adjust: 100%; }
+  h1, h2, h3 { font-family: var(--serif); margin: 0; color: var(--navy); letter-spacing: -.01em; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+  .hidden { display: none !important; }
+
+  /* ---------- Ingreso ---------- */
+  #login { min-height: 100vh; display: grid; place-items: center; padding: 24px 18px;
+           background: radial-gradient(900px 560px at 50% -8%, #3B3E80 0%, var(--navy) 50%, var(--navy-deep) 100%); }
+  .login-card { width: 100%; max-width: 380px; background: #fff; border-radius: 28px; padding: 30px 26px 26px; text-align: center; box-shadow: 0 26px 60px rgba(10,11,40,.5); }
+  .login-card img { width: 210px; max-width: 70%; display: block; margin: 0 auto 18px; }
+  .login-card h1 { font-size: 26px; }
+  .login-card .sub { margin: 6px 0 20px; color: var(--muted); }
+  .pin { width: 100%; text-align: center; font-size: 28px; letter-spacing: .5em; padding: 13px 10px 13px 22px; border: 2px solid var(--line); border-radius: 16px; background: var(--lav); }
+  .pin:focus { border-color: var(--orange); outline: none; background: #fff; }
+  .err { margin: 12px 0 0; color: var(--bad); font-weight: 600; min-height: 1.3em; }
+
+  /* ---------- Botones ---------- */
+  .btn { appearance: none; border: 0; cursor: pointer; border-radius: 999px; padding: 12px 20px; font-weight: 700; background: var(--orange); color: #fff; transition: background .15s, transform .1s; }
+  .btn:hover { background: var(--orange-d); }
+  .btn:active { transform: scale(.98); }
+  .btn[disabled] { opacity: .55; cursor: default; }
+  .btn.block { width: 100%; margin-top: 16px; padding: 14px 20px; font-size: 17px; }
+  .btn.sec { background: var(--lav); color: var(--navy); }
+  .btn.sec:hover { background: #DDDFF0; }
+  .btn.ghost { background: transparent; color: var(--navy); border: 2px solid var(--line); padding: 10px 18px; }
+  .btn.sm { padding: 8px 14px; font-size: 14px; }
+  .btn.wa { background: #1FA855; } .btn.wa:hover { background: #178F47; }
+
+  /* ---------- Marco de la app ---------- */
+  header.top { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 4px solid var(--orange); }
+  .top-in { max-width: 1040px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+  .top-in img { height: 36px; width: auto; }
+  .top-in .quien { margin-left: auto; display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--navy); }
+  .top-in .chip-rol { background: var(--lav); border-radius: 999px; padding: 5px 12px; font-size: 14px; }
+  nav.tabs { max-width: 1040px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  nav.tabs button { flex: none; appearance: none; border: 0; background: transparent; padding: 10px 16px; border-radius: 999px; font-weight: 700; color: var(--muted); cursor: pointer; }
+  nav.tabs button[aria-selected="true"] { background: var(--navy); color: #fff; }
+  main { max-width: 1040px; margin: 0 auto; padding: 14px 16px 60px; }
+  section.panel { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; }
+  section.panel + section.panel { margin-top: 16px; }
+  .panel h2 { font-size: 22px; margin-bottom: 4px; }
+  .panel .hint { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+
+  /* ---------- Formularios ---------- */
+  .grid2 { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid2 { grid-template-columns: 1fr 1fr; } .grid2 .full { grid-column: 1 / -1; } }
+  label.f { display: block; font-weight: 600; font-size: 15px; color: var(--navy); }
+  label.f input, label.f select { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; border: 2px solid var(--line); border-radius: 14px; background: #fff; font-weight: 500; }
+  label.f input:focus, label.f select:focus { border-color: var(--orange); outline: none; }
+  label.f small { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; }
+
+  /* ---------- Cifras ---------- */
+  .tiles { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
+  @media (min-width: 720px) { .tiles { grid-template-columns: repeat(5, 1fr); } }
+  .tile { background: var(--lav); border-radius: 18px; padding: 12px 14px; }
+  .tile b { display: block; font-family: var(--serif); font-size: 28px; line-height: 1.1; color: var(--navy); }
+  .tile span { font-size: 14px; color: var(--muted); }
+  @media (max-width: 719px) { .tile.money { grid-column: 1 / -1; } }
+  .tile.money { background: var(--navy); } .tile.money b { color: #fff; } .tile.money span { color: #C9CBE6; }
+  .tile.hot { background: var(--orange-soft); }
+
+  /* ---------- Lista de referidos ---------- */
+  .filtros { display: grid; gap: 10px; grid-template-columns: 1fr; margin-bottom: 14px; }
+  @media (min-width: 720px) { .filtros { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; } }
+  .lnk { appearance: none; border: 0; background: none; padding: 0 2px; cursor: pointer; color: var(--orange-d); font-weight: 700; font-size: inherit; text-decoration: underline; }
+  .filtros input, .filtros select { width: 100%; padding: 11px 14px; border: 2px solid var(--line); border-radius: 14px; background: #fff; }
+  .item { border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; background: #fff; }
+  .item + .item { margin-top: 10px; }
+  .item-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .item-h b { font-size: 17px; color: var(--navy); }
+  .item-m { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; }
+  .item-m strong { color: var(--ink); font-weight: 600; }
+  .item-a { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+  .item-a select { padding: 8px 12px; border: 2px solid var(--line); border-radius: 999px; background: #fff; font-weight: 600; font-size: 14px; }
+  .monto { margin-left: auto; font-family: var(--serif); font-weight: 700; color: var(--navy); font-size: 18px; }
+  .chip { display: inline-block; flex: none; padding: 4px 11px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; background: var(--lav); color: var(--navy); }
+  .chip.s-Registrado { background: #ECECF1; color: #50536F; }
+  .chip.s-Tarjeta { background: var(--info-bg); color: var(--info); }
+  .chip.s-Acepto { background: var(--orange-soft); color: #A8540A; }
+  .chip.s-Cita { background: #DDF1F4; color: #146675; }
+  .chip.s-Asistio { background: var(--ok-bg); color: var(--ok); }
+  .chip.s-No { background: var(--bad-bg); color: var(--bad); }
+  .vacio { text-align: center; color: var(--muted); padding: 26px 10px; }
+
+  /* ---------- Tablas ---------- */
+  .tabla-wrap { overflow-x: auto; margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
+  th, td { padding: 10px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 14px; }
+  th:first-child, td:first-child { text-align: left; }
+  td:first-child { font-weight: 600; color: var(--navy); white-space: normal; }
+  tr.top1 td { background: var(--orange-soft); }
+  .sub-cl { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+
+  /* ---------- QR ---------- */
+  .qr-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .qr-card { border: 1px solid var(--line); border-radius: 20px; padding: 16px; text-align: center; }
+  .qr-card h3 { font-size: 18px; margin-bottom: 10px; }
+  .qr-box { display: inline-block; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+  .qr-box img, .qr-box canvas { display: block; }
+  .qr-card .btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+
+  /* ---------- Modal y aviso ---------- */
+  .modal-bg { position: fixed; inset: 0; background: rgba(20,22,60,.6); z-index: 50; display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+  .modal { background: #fff; border-radius: 24px; width: 100%; max-width: 420px; padding: 22px; max-height: 94vh; overflow-y: auto; }
+  .modal h2 { font-size: 22px; margin-bottom: 4px; }
+  .modal .cerrar { margin-top: 10px; width: 100%; }
+  .modal canvas { width: 100%; max-width: 330px; height: auto; display: block; margin: 12px auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(20,22,60,.25); }
+  .acciones-col { display: grid; gap: 8px; margin-top: 6px; }
+  #aviso { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--navy-deep); color: #fff; padding: 12px 20px; border-radius: 18px; font-weight: 600; z-index: 80; width: max-content; max-width: 92vw; text-align: center; box-shadow: 0 10px 30px rgba(10,11,40,.35); }
+  #aviso.mal { background: var(--bad); }
+
+  /* ---------- Cartel para imprimir ---------- */
+  #print-area { display: none; }
+  @media print {
+    body.imprimiendo > *:not(#print-area) { display: none !important; }
+    body.imprimiendo { background: #fff; }
+    body.imprimiendo #print-area { display: block !important; }
+    @page { margin: 12mm; }
+  }
+  .poster { text-align: center; padding: 20px 10px; color: var(--navy); font-family: var(--sans); }
+  .poster img.lg { width: 70%; max-width: 420px; display: block; margin: 0 auto 18px; }
+  .poster h2 { font-size: 40px; margin-bottom: 4px; }
+  .poster .cl { font-family: var(--serif); font-size: 34px; font-weight: 800; color: var(--orange); margin: 6px 0 22px; }
+  .poster .qrp { display: inline-block; padding: 18px; border: 6px solid var(--navy); border-radius: 28px; }
+  .poster .qrp img, .poster .qrp canvas { display: block; }
+  .poster p { font-size: 22px; margin: 22px auto 0; max-width: 560px; color: #333; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ============ Ingreso ============ -->
+<div id="login">
+  <form class="login-card" id="loginForm" autocomplete="off">
+    <img id="loginLogo" alt="GrupoDent Especialistas Dentales">
+    <h1>Referidos de doctores</h1>
+    <p class="sub" id="loginSub">Ingresa el PIN de gerencia</p>
+    <input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN" placeholder="••••">
+    <p class="err" id="loginErr" role="alert"></p>
+    <button class="btn block" id="loginBtn" type="submit">Entrar</button>
+  </form>
+</div>
+
+<!-- ============ App ============ -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="top-in">
+      <img id="topLogo" alt="GrupoDent">
+      <div class="quien"><span class="chip-rol" id="rolChip"></span><button class="btn ghost sm" id="salir" type="button">Salir</button></div>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main id="vista"></main>
+</div>
+
+<div id="print-area"></div>
+<div id="aviso" class="hidden" role="status"></div>
+
+<script>
+const BOOT = <?!= boot ?>;
+const $ = (id) => document.getElementById(id);
+const S = { codigo: BOOT.codigo || '', pin: '', rol: '', clinica: '', clinicas: [], estados: [], generados: [], base: '', linkBase: '', mensaje: '', rows: [], tab: '', docs: {}, ases: {}, filtros: { q: '', estado: '', clinica: '', doctor: '', asesor: '' }, resumen: { mes: '', clinica: '' } };
+$('loginLogo').src = window.GD_LOGO; $('topLogo').src = window.GD_LOGO;
+$('loginSub').textContent = BOOT.nombre ? ('Clínica ' + BOOT.nombre + ': ingresa tu PIN') : 'Ingresa el PIN de gerencia';
+
+/* ---------- utilidades ---------- */
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function primer(n) { return String(n || '').trim().split(/\s+/)[0] || ''; }
+function q(n) { return 'Q' + (Number(n) || 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fechaCorta(f) { const s = String(f || '').slice(0, 10).split('-'); return s.length === 3 ? s[2] + '/' + s[1] + '/' + s[0] : ''; }
+function tel(t) { t = String(t || ''); return t.length === 8 ? t.slice(0, 4) + ' ' + t.slice(4) : t; }
+function asesorDe(r) { return r.Asesor || 'Sin asignar'; }
+function nombreClinica(c) { const x = S.clinicas.find((k) => k.codigo === c); return x ? x.nombre : c; }
+function claseEstado(e) { return 's-' + (e === 'Tarjeta enviada' ? 'Tarjeta' : e === 'Aceptó' ? 'Acepto' : e === 'Cita agendada' ? 'Cita' : e === 'Asistió' ? 'Asistio' : e === 'No aceptó' ? 'No' : 'Registrado'); }
+let avisoT;
+function aviso(msg, mal) { const a = $('aviso'); a.textContent = msg; a.className = mal ? 'mal' : ''; clearTimeout(avisoT); avisoT = setTimeout(() => a.classList.add('hidden'), 3600); }
+
+function api(accion, payload) {
+  return new Promise((res, rej) => {
+    google.script.run
+      .withSuccessHandler((r) => (r && r.ok ? res(r.data) : rej(new Error((r && r.error) || 'Error inesperado.'))))
+      .withFailureHandler((e) => rej(new Error((e && e.message) || 'No hay conexión con el servidor.')))
+      .api(accion, S.codigo, S.pin, payload || {});
+  });
+}
+
+function modal(html, montar) {
+  cerrarModal();
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg'; bg.id = 'modalBg';
+  bg.innerHTML = '<div class="modal" role="dialog" aria-modal="true">' + html + '</div>';
+  bg.addEventListener('mousedown', (e) => { if (e.target === bg) cerrarModal(); });
+  document.body.appendChild(bg);
+  if (montar) montar(bg.firstChild);
+}
+function cerrarModal() { const m = $('modalBg'); if (m) m.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModal(); });
+
+/* ---------- ingreso ---------- */
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const b = $('loginBtn'); $('loginErr').textContent = '';
+  S.pin = $('pin').value.trim();
+  if (!S.pin) { $('loginErr').textContent = 'Escribe tu PIN.'; return; }
+  b.disabled = true; b.textContent = 'Entrando…';
+  try {
+    const d = await api('login');
+    Object.assign(S, { rol: d.rol, clinica: d.clinica, clinicas: d.clinicas, estados: d.estados, generados: d.generados, base: d.baseUrl, linkBase: d.linkBase || '', mensaje: d.mensaje || '' });
+    S.tab = d.rol === 'admin' ? 'resumen' : 'registrar';
+    S.rows = await api('listar');
+    $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+    $('rolChip').textContent = d.rol === 'admin' ? 'Gerencia' : nombreClinica(d.clinica);
+    pintarTabs(); pintar();
+  } catch (err) { $('loginErr').textContent = err.message; S.pin = ''; }
+  b.disabled = false; b.textContent = 'Entrar'; $('pin').value = '';
+});
+$('salir').addEventListener('click', () => { S.pin = ''; S.rows = []; S.docs = {}; S.ases = {}; $('app').classList.add('hidden'); $('login').classList.remove('hidden'); $('pin').focus(); });
+
+/* ---------- pestañas ---------- */
+function pestanas() {
+  const t = [];
+  if (S.rol === 'admin') t.push(['resumen', 'Resumen']);
+  t.push(['registrar', 'Registrar referido'], ['lista', 'Referidos']);
+  if (S.rol !== 'admin') t.push(['resumen', 'Resultados']);
+  if (S.rol === 'admin') t.push(['qr', 'Códigos QR']);
+  return t;
+}
+function pintarTabs() {
+  $('tabs').innerHTML = pestanas().map(([id, n]) => '<button role="tab" data-tab="' + id + '" aria-selected="' + (S.tab === id) + '">' + n + '</button>').join('');
+}
+$('tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (!b) return; S.tab = b.dataset.tab; pintarTabs(); pintar(); window.scrollTo(0, 0); });
+function pintar() { ({ registrar: vistaRegistrar, lista: vistaLista, resumen: vistaResumen, qr: vistaQR }[S.tab] || vistaLista)(); }
+
+/* ---------- cifras ---------- */
+function cifras(rows) {
+  const g = { reg: rows.length, gen: 0, citas: 0, asist: 0, no: 0, monto: 0 };
+  rows.forEach((r) => {
+    if (S.generados.includes(r.Estado)) g.gen++;
+    if (r.Estado === 'Cita agendada' || r.Estado === 'Asistió') g.citas++;
+    if (r.Estado === 'Asistió') g.asist++;
+    if (r.Estado === 'No aceptó') g.no++;
+    g.monto += Number(r.MontoTotal) || 0;
+  });
+  g.pct = g.reg ? Math.round((g.gen / g.reg) * 100) : 0;
+  return g;
+}
+function tiles(g) {
+  return '<div class="tiles">' +
+    '<div class="tile"><b>' + g.reg + '</b><span>Registrados</span></div>' +
+    '<div class="tile hot"><b>' + g.gen + '</b><span>Referidos generados (' + g.pct + '%)</span></div>' +
+    '<div class="tile"><b>' + g.citas + '</b><span>Con cita</span></div>' +
+    '<div class="tile"><b>' + g.asist + '</b><span>Pacientes nuevos</span></div>' +
+    '<div class="tile money"><b>' + q(g.monto) + '</b><span>Monto generado</span></div></div>';
+}
+
+/* ---------- registrar ---------- */
+async function doctoresDe(codigo) {
+  if (!codigo) return [];
+  if (!S.docs[codigo]) S.docs[codigo] = await api('doctores', { clinica: codigo });
+  return S.docs[codigo];
+}
+async function asesoresDe(codigo) {
+  if (!codigo) return [];
+  if (!S.ases[codigo]) S.ases[codigo] = await api('asesores', { clinica: codigo });
+  return S.ases[codigo];
+}
+function vistaRegistrar() {
+  const admin = S.rol === 'admin';
+  $('vista').innerHTML =
+    '<section class="panel"><h2>Registrar referido</h2><p class="hint">Llena los datos del paciente referido. Con ellos se arma la tarjeta que se envía por WhatsApp.</p>' +
+    '<form id="fReg" autocomplete="off"><div class="grid2">' +
+    (admin ? '<label class="f full">Clínica<select id="rClin" required><option value="">Elige la clínica</option>' + S.clinicas.map((c) => '<option value="' + c.codigo + '">' + esc(c.nombre) + '</option>').join('') + '</select></label>' : '') +
+    '<label class="f">Nombre del paciente referido<input id="rRef" maxlength="80" required placeholder="Nombre y apellido"></label>' +
+    '<label class="f">Teléfono<input id="rTel" inputmode="tel" maxlength="14" required placeholder="5555 1234"></label>' +
+    '<label class="f">Nombre de quien refiere<input id="rRefiere" maxlength="80" required placeholder="Paciente que lo recomienda"></label>' +
+    '<label class="f">Doctor o tratante<span id="rDocBox"><select id="rDoc" required><option value="">Elige el doctor</option></select></span><small>Es solo para control interno; no aparece en la tarjeta.</small></label>' +
+    '<label class="f">Asesor que da seguimiento<span id="rAseBox"><select id="rAse" required><option value="">Elige el asesor</option></select></span><small>Queda registrado quién atiende a este referido.</small></label>' +
+    '<label class="f full">Dirección<input id="rDir" maxlength="200" required placeholder="Zona, colonia o municipio del referido"></label>' +
+    '</div><p class="err" id="rErr" role="alert"></p><button class="btn block" id="rBtn" type="submit">Registrar y crear tarjeta</button></form></section>';
+
+  const cargarDocs = async () => {
+    const cod = admin ? $('rClin').value : S.clinica;
+    const box = $('rDocBox'), boxA = $('rAseBox');
+    if (!cod) {
+      box.innerHTML = '<select id="rDoc" required><option value="">Elige primero la clínica</option></select>';
+      boxA.innerHTML = '<select id="rAse" required><option value="">Elige primero la clínica</option></select>';
+      return;
+    }
+    try {
+      const [lista, listaA] = await Promise.all([doctoresDe(cod), asesoresDe(cod)]);
+      box.innerHTML = lista.length
+        ? '<select id="rDoc" required><option value="">Elige el doctor</option>' + lista.map((d) => '<option>' + esc(d) + '</option>').join('') + '</select>'
+        : '<input id="rDoc" maxlength="80" required placeholder="Escribe el nombre del doctor">';
+      boxA.innerHTML = listaA.length
+        ? '<select id="rAse" required><option value="">Elige el asesor</option>' + listaA.map((d) => '<option>' + esc(d) + '</option>').join('') + '</select>'
+        : '<input id="rAse" maxlength="80" required placeholder="Escribe el nombre del asesor">';
+    } catch (err) { aviso(err.message, true); }
+  };
+  if (admin) $('rClin').addEventListener('change', cargarDocs); else cargarDocs();
+
+  $('fReg').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('rErr').textContent = '';
+    const b = $('rBtn'); b.disabled = true; b.textContent = 'Registrando…';
+    try {
+      const r = await api('registrar', { clinica: admin ? $('rClin').value : S.clinica, referido: $('rRef').value, telefono: $('rTel').value, refiere: $('rRefiere').value, doctor: $('rDoc').value, asesor: $('rAse').value, direccion: $('rDir').value });
+      S.rows.unshift(r);
+      mostrarListo(r);
+      vistaRegistrar();
+    } catch (err) { $('rErr').textContent = err.message; }
+    b.disabled = false; b.textContent = 'Registrar y crear tarjeta';
+  });
+}
+
+/* ---------- tarjeta (imagen) ---------- */
+const MENSAJE_BASE = '¡Hola, {nombre}! 🎉\n\n{refiere} pensó en usted y le regaló una *evaluación dental GRATIS* en GrupoDent Especialistas Dentales, clínica {clinica}.\n\nAbra su tarjeta y acéptela aquí 👇\n{link}\n\n¡Sonría, alguien pensó en usted! 😁';
+// Con vista previa configurada, el link pasa por la página de GrupoDent (imagen y título bonitos en WhatsApp).
+function linkTarjeta(r) {
+  if (S.linkBase) return S.linkBase.replace(/\?.*$/, '') + '?t=' + r.Token;
+  return S.base + '?t=' + r.Token;
+}
+function mensajeWA(r) {
+  let m = S.mensaje || MENSAJE_BASE;
+  if (m.indexOf('{link}') < 0) m += '\n{link}';
+  return m.split('{nombre}').join(primer(r.Referido)).split('{refiere}').join(r.Refiere)
+    .split('{asesor}').join(r.Asesor || 'GrupoDent').split('{clinica}').join(nombreClinica(r.Clinica)).split('{link}').join(linkTarjeta(r));
+}
+function hayLink() { return !!(S.base || S.linkBase); }
+function marcarEnviada(r) {
+  if (r.Estado !== 'Registrado') return;
+  const antes = r.Estado; r.Estado = 'Tarjeta enviada';
+  cambiarEstado(r.Token, 'Tarjeta enviada', true).then((ok) => { if (!ok) r.Estado = antes; });
+}
+
+function enviarWA(r) {
+  if (!hayLink()) { aviso('Falta publicar la app como aplicación web para generar el link.', true); return; }
+  window.open('https://wa.me/502' + r.Telefono + '?text=' + encodeURIComponent(mensajeWA(r)), '_blank');
+  marcarEnviada(r);
+}
+async function copiarTexto(texto) {
+  try { await navigator.clipboard.writeText(texto); return true; } catch (e) { /* se prueba otro método */ }
+  try {
+    const t = document.createElement('textarea'); t.value = texto; t.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove();
+    if (ok) return true;
+  } catch (e) { /* último recurso abajo */ }
+  modal('<h2>Copia el mensaje</h2><p class="item-m">Tu navegador no dejó copiar solo. Selecciona el texto y cópialo.</p><textarea id="manual" readonly rows="9" style="width:100%;margin-top:10px;padding:10px;border:2px solid var(--line);border-radius:14px;font:inherit"></textarea><button class="btn ghost cerrar" id="manualX" type="button">Cerrar</button>',
+    () => { const t = $('manual'); t.value = texto; t.focus(); t.select(); $('manualX').addEventListener('click', cerrarModal); });
+  return false;
+}
+async function copiarMensaje(r) {
+  if (!hayLink()) { aviso('Falta publicar la app como aplicación web para generar el link.', true); return; }
+  if (await copiarTexto(mensajeWA(r))) { aviso('Mensaje copiado. Pégalo en WhatsApp.'); marcarEnviada(r); }
+}
+function bajarBlob(blob, nombre) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+// Envía la tarjeta como imagen con el mensaje. En el celular abre WhatsApp directo; si el equipo no lo permite,
+// descarga la imagen y copia el mensaje para pegarlo junto con ella.
+async function compartirImagen(r) {
+  if (!hayLink()) { aviso('Falta publicar la app como aplicación web para generar el link.', true); return; }
+  try {
+    const cv = await dibujarTarjeta(r, document.createElement('canvas'));
+    const blob = await new Promise((res) => cv.toBlob(res, 'image/png'));
+    const nombre = 'Tarjeta_' + primer(r.Referido) + '_' + r.Token.slice(0, 6) + '.png';
+    const archivo = new File([blob], nombre, { type: 'image/png' });
+    const texto = mensajeWA(r);
+    if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+      try { await navigator.share({ files: [archivo], text: texto }); marcarEnviada(r); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    bajarBlob(blob, nombre);
+    const ok = await copiarTexto(texto);
+    if (ok) { aviso('Imagen descargada y mensaje copiado. Adjunta la imagen en WhatsApp y pega el mensaje.'); marcarEnviada(r); }
+  } catch (e) { aviso('No se pudo preparar la imagen.', true); }
+}
+
+async function fuentes() {
+  try {
+    await Promise.race([
+      Promise.all(['800 100px Fraunces', '700 60px Fraunces', 'italic 600 40px Fraunces', '600 30px Figtree', '400 30px Figtree'].map((f) => document.fonts.load(f))),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]);
+  } catch (e) { /* se usa la tipografía de respaldo */ }
+}
+function cargarImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function ajustar(c, texto, estilo, peso, familia, max, ancho) { let s = max; for (; s > 22; s -= 2) { c.font = estilo + ' ' + peso + ' ' + s + 'px ' + familia; if (c.measureText(texto).width <= ancho) break; } return s; }
+
+async function dibujarTarjeta(r, canvas) {
+  const W = 1080, H = 1350, NAVY = '#2A2C5E', OR = '#F08320';
+  const SERIF = "Fraunces, Georgia, 'Times New Roman', serif", SANS = "Figtree, system-ui, 'Segoe UI', sans-serif";
+  canvas.width = W; canvas.height = H;
+  const c = canvas.getContext('2d');
+  await fuentes();
+  const logo = await cargarImg(window.GD_LOGO);
+
+  const g = c.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#3B3E80'); g.addColorStop(.5, NAVY); g.addColorStop(1, '#1A1C42');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // confeti (siempre igual para el mismo cupón)
+  let seed = 0; const cup = 'GD-' + r.Token.slice(0, 6);
+  for (let i = 0; i < cup.length; i++) seed = (seed * 31 + cup.charCodeAt(i)) >>> 0;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const cols = ['#F08320', '#FFFFFF', '#F7B26B', '#9FA2D6', '#FDEBD6', '#5C60A8'];
+  for (let i = 0; i < 90; i++) {
+    c.save(); c.translate(rnd() * W, rnd() * H); c.rotate(rnd() * Math.PI); c.fillStyle = cols[(rnd() * cols.length) | 0];
+    const s = 10 + rnd() * 16; if (rnd() < .35) { c.beginPath(); c.arc(0, 0, s / 2, 0, 7); c.fill(); } else c.fillRect(-s / 2, -s, s, s * 1.8);
+    c.restore();
+  }
+  // tarjeta blanca
+  c.save(); c.shadowColor = 'rgba(10,11,40,.5)'; c.shadowBlur = 50; c.shadowOffsetY = 20;
+  rr(c, 60, 70, 960, 1210, 56); c.fillStyle = '#fff'; c.fill(); c.restore();
+  c.save(); rr(c, 60, 70, 960, 1210, 56); c.clip();
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+
+  const lw = 500, lh = lw / (logo.width / logo.height);
+  c.drawImage(logo, 540 - lw / 2, 118, lw, lh);
+
+  c.fillStyle = NAVY; c.font = '800 104px ' + SERIF; c.fillText('¡Felicidades!', 540, 432);
+  const nombre = primer(r.Referido);
+  c.fillStyle = OR; ajustar(c, nombre, '', 800, SERIF, 128, 820); c.fillText(nombre, 540, 566);
+
+  c.fillStyle = '#666A8C'; ajustar(c, 'Fuiste referido por una persona muy especial:', '', 400, SANS, 38, 860);
+  c.fillText('Fuiste referido por una persona muy especial:', 540, 650);
+
+  const quien = r.Refiere;
+  const sz = ajustar(c, quien, '', 700, SERIF, 66, 800);
+  const tw = c.measureText(quien).width;
+  rr(c, 540 - tw / 2 - 34, 690, tw + 68, 104, 24); c.fillStyle = '#FDEBD6'; c.fill();
+  c.fillStyle = NAVY; c.font = '700 ' + sz + 'px ' + SERIF; c.fillText(quien, 540, 758);
+
+  // regalo
+  rr(c, 160, 832, 760, 218, 34); c.fillStyle = '#ECEDF6'; c.fill();
+  const gx = 540, gy = 852;
+  c.fillStyle = OR; rr(c, gx - 28, gy + 26, 56, 38, 6); c.fill();
+  c.fillStyle = NAVY; rr(c, gx - 33, gy + 14, 66, 16, 5); c.fill();
+  c.fillStyle = '#FDEBD6'; c.fillRect(gx - 5, gy + 14, 10, 50);
+  c.strokeStyle = NAVY; c.lineWidth = 4; c.lineJoin = 'round';
+  c.beginPath(); c.moveTo(gx, gy + 14); c.bezierCurveTo(gx - 6, gy - 6, gx - 30, gy - 6, gx - 22, gy + 6); c.bezierCurveTo(gx - 18, gy + 12, gx - 8, gy + 14, gx, gy + 14); c.stroke();
+  c.beginPath(); c.moveTo(gx, gy + 14); c.bezierCurveTo(gx + 6, gy - 6, gx + 30, gy - 6, gx + 22, gy + 6); c.bezierCurveTo(gx + 18, gy + 12, gx + 8, gy + 14, gx, gy + 14); c.stroke();
+  c.fillStyle = '#666A8C'; c.font = '400 34px ' + SANS; c.fillText('y te regala una', 540, 960);
+  c.fillStyle = NAVY; ajustar(c, 'evaluación dental gratis', '', 800, SERIF, 58, 700); c.fillText('evaluación dental gratis', 540, 1024);
+
+  c.fillStyle = NAVY; c.font = 'italic 600 46px ' + SERIF; c.fillText('Sonríe, alguien pensó en ti.', 540, 1118);
+
+  // pie naranja
+  c.fillStyle = OR; c.fillRect(60, 1160, 960, 130);
+  c.fillStyle = '#fff'; c.font = '800 42px ' + SERIF; c.fillText('Cupón ' + cup, 540, 1212);
+  const pie = 'Presenta esta tarjeta en tu cita en GrupoDent ' + nombreClinica(r.Clinica);
+  ajustar(c, pie, '', 600, SANS, 29, 880); c.fillText(pie, 540, 1254);
+  c.restore();
+  return canvas;
+}
+async function descargarTarjeta(r) {
+  try {
+    const cv = await dibujarTarjeta(r, document.createElement('canvas'));
+    cv.toBlob((b) => bajarBlob(b, 'Tarjeta_' + primer(r.Referido) + '_' + r.Token.slice(0, 6) + '.png'), 'image/png');
+  } catch (e) { aviso('No se pudo generar la imagen.', true); }
+}
+function mostrarListo(r) {
+  modal(
+    '<h2>Referido registrado</h2><p class="item-m">Tarjeta de <strong>' + esc(r.Referido) + '</strong>, referido por <strong>' + esc(r.Refiere) + '</strong>.</p>' +
+    '<canvas id="prev" aria-label="Vista previa de la tarjeta"></canvas>' +
+    '<div class="acciones-col"><button class="btn wa" data-m="wa">Enviar por WhatsApp</button><button class="btn sec" data-m="share">Enviar tarjeta como imagen</button><button class="btn sec" data-m="msg">Copiar mensaje con link</button><button class="btn sec" data-m="img">Descargar imagen</button></div>' +
+    '<button class="btn ghost cerrar" data-m="x">Listo</button>',
+    (m) => {
+      dibujarTarjeta(r, $('prev')).catch(() => {});
+      m.addEventListener('click', (e) => {
+        const a = e.target.closest('[data-m]'); if (!a) return;
+        if (a.dataset.m === 'wa') enviarWA(r);
+        else if (a.dataset.m === 'share') compartirImagen(r);
+        else if (a.dataset.m === 'msg') copiarMensaje(r);
+        else if (a.dataset.m === 'img') descargarTarjeta(r);
+        else cerrarModal();
+      });
+    });
+}
+
+/* ---------- lista ---------- */
+function filtradas() {
+  const f = S.filtros, t = f.q.trim().toLowerCase();
+  return S.rows.filter((r) =>
+    (!f.estado || r.Estado === f.estado) && (!f.clinica || r.Clinica === f.clinica) && (!f.doctor || r.Doctor === f.doctor) && (!f.asesor || asesorDe(r) === f.asesor) &&
+    (!t || (r.Referido + ' ' + r.Refiere + ' ' + r.Telefono + ' ' + r.Doctor + ' ' + asesorDe(r)).toLowerCase().includes(t)));
+}
+function vistaLista() {
+  const admin = S.rol === 'admin';
+  const doctores = [...new Set(S.rows.filter((r) => !S.filtros.clinica || r.Clinica === S.filtros.clinica).map((r) => r.Doctor))].sort((a, b) => a.localeCompare(b, 'es'));
+  const asesoresLista = [...new Set(S.rows.filter((r) => !S.filtros.clinica || r.Clinica === S.filtros.clinica).map(asesorDe))].sort((a, b) => a.localeCompare(b, 'es'));
+  $('vista').innerHTML =
+    '<section class="panel"><h2>Referidos</h2><p class="hint">Cambia el estado conforme avanza cada referido. Cuando el paciente toca “Aceptar” en la tarjeta, pasa solo a Aceptó.</p>' +
+    '<div class="filtros"><input id="fQ" type="search" placeholder="Buscar paciente o doctor" value="' + esc(S.filtros.q) + '">' +
+    '<select id="fEst"><option value="">Todos los estados</option>' + S.estados.map((e) => '<option' + (S.filtros.estado === e ? ' selected' : '') + '>' + e + '</option>').join('') + '</select>' +
+    (admin ? '<select id="fClin"><option value="">Todas las clínicas</option>' + S.clinicas.map((c) => '<option value="' + c.codigo + '"' + (S.filtros.clinica === c.codigo ? ' selected' : '') + '>' + esc(c.nombre) + '</option>').join('') + '</select>' : '<span></span>') +
+    '<select id="fDoc"><option value="">Todos los doctores</option>' + doctores.map((d) => '<option' + (S.filtros.doctor === d ? ' selected' : '') + '>' + esc(d) + '</option>').join('') + '</select>' +
+    '<select id="fAse"><option value="">Todos los asesores</option>' + asesoresLista.map((d) => '<option' + (S.filtros.asesor === d ? ' selected' : '') + '>' + esc(d) + '</option>').join('') + '</select></div>' +
+    '<div id="cif"></div><div id="items"></div></section>';
+  $('fQ').addEventListener('input', (e) => { S.filtros.q = e.target.value; pintarItems(); });
+  $('fEst').addEventListener('change', (e) => { S.filtros.estado = e.target.value; pintarItems(); });
+  $('fDoc').addEventListener('change', (e) => { S.filtros.doctor = e.target.value; pintarItems(); });
+  $('fAse').addEventListener('change', (e) => { S.filtros.asesor = e.target.value; pintarItems(); });
+  if (admin) $('fClin').addEventListener('change', (e) => { S.filtros.clinica = e.target.value; S.filtros.doctor = ''; S.filtros.asesor = ''; vistaLista(); });
+  pintarItems();
+}
+function pintarItems() {
+  const rows = filtradas();
+  $('cif').innerHTML = tiles(cifras(rows));
+  $('items').innerHTML = rows.length ? rows.slice(0, 300).map(itemHTML).join('') : '<p class="vacio">No hay referidos con estos filtros.</p>';
+}
+function itemHTML(r) {
+  const admin = S.rol === 'admin';
+  return '<article class="item" data-t="' + r.Token + '">' +
+    '<div class="item-h"><b>' + esc(r.Referido) + '</b><span class="chip ' + claseEstado(r.Estado) + '">' + r.Estado + '</span></div>' +
+    '<p class="item-m">' + tel(r.Telefono) + ' · Refiere: <strong>' + esc(r.Refiere) + '</strong></p>' +
+    '<p class="item-m">Doctor: <strong>' + esc(r.Doctor) + '</strong>' + (admin ? ' · ' + esc(nombreClinica(r.Clinica)) : '') + ' · ' + fechaCorta(r.Fecha) + (r.AceptoPor ? ' · Aceptó: ' + r.AceptoPor : '') + '</p>' +
+    '<p class="item-m">Asesor: <strong>' + esc(asesorDe(r)) + '</strong> <button class="lnk" data-a="asesor">Cambiar</button></p>' +
+    '<div class="item-a">' +
+    '<button class="btn wa sm" data-a="wa">WhatsApp</button>' +
+    '<button class="btn sec sm" data-a="msg">Copiar mensaje</button>' +
+    '<button class="btn sec sm" data-a="share">Enviar imagen</button>' +
+    '<select data-a="estado" aria-label="Estado de ' + esc(r.Referido) + '">' + S.estados.map((e) => '<option' + (e === r.Estado ? ' selected' : '') + '>' + e + '</option>').join('') + '</select>' +
+    '<button class="btn sec sm" data-a="pago">+ Pago</button>' +
+    '<span class="monto">' + q(r.MontoTotal) + '</span></div></article>';
+}
+function porToken(t) { return S.rows.find((r) => r.Token === t); }
+async function cambiarEstado(token, estado, silencioso) {
+  try {
+    const nuevo = await api('estado', { token, estado });
+    const i = S.rows.findIndex((r) => r.Token === token); if (i >= 0) S.rows[i] = nuevo;
+    if (!silencioso) aviso('Estado actualizado: ' + estado + '.');
+    if (S.tab === 'lista') pintarItems();
+    return true;
+  } catch (err) { aviso(err.message, true); if (S.tab === 'lista') pintarItems(); return false; }
+}
+$('vista').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-a]'); if (!b || b.tagName === 'SELECT') return;
+  const it = b.closest('.item'); const r = it && porToken(it.dataset.t); if (!r) return;
+  if (b.dataset.a === 'wa') enviarWA(r);
+  else if (b.dataset.a === 'msg') copiarMensaje(r);
+  else if (b.dataset.a === 'share') compartirImagen(r);
+  else if (b.dataset.a === 'pago') abrirPago(r);
+  else if (b.dataset.a === 'asesor') abrirAsesor(r);
+});
+$('vista').addEventListener('change', (e) => {
+  const s = e.target.closest('select[data-a="estado"]'); if (!s) return;
+  const r = porToken(s.closest('.item').dataset.t); if (r) cambiarEstado(r.Token, s.value);
+});
+async function abrirAsesor(r) {
+  let lista = [];
+  try { lista = await asesoresDe(r.Clinica); } catch (err) { aviso(err.message, true); return; }
+  const campo = lista.length
+    ? '<select id="aSel" required><option value="">Elige el asesor</option>' + lista.map((d) => '<option' + (d === r.Asesor ? ' selected' : '') + '>' + esc(d) + '</option>').join('') + '</select>'
+    : '<input id="aSel" maxlength="80" required placeholder="Nombre del asesor" value="' + esc(r.Asesor || '') + '">';
+  modal('<h2>Asesor de seguimiento</h2><p class="item-m">' + esc(r.Referido) + '</p>' +
+    '<form id="fAsesor"><label class="f" style="margin-top:12px">Asesor que da seguimiento<span style="display:block">' + campo + '</span></label>' +
+    '<p class="err" id="aErr"></p><button class="btn block" type="submit">Guardar asesor</button></form><button class="btn ghost cerrar" type="button" id="aX">Cancelar</button>',
+    () => {
+      $('aX').addEventListener('click', cerrarModal);
+      $('fAsesor').addEventListener('submit', async (e) => {
+        e.preventDefault(); const bt = e.target.querySelector('button[type=submit]'); bt.disabled = true;
+        try {
+          const nuevo = await api('asesor', { token: r.Token, asesor: $('aSel').value });
+          const i = S.rows.findIndex((x) => x.Token === r.Token); if (i >= 0) S.rows[i] = nuevo;
+          cerrarModal(); aviso('Asesor actualizado: ' + nuevo.Asesor + '.'); if (S.tab === 'lista') pintarItems();
+        } catch (err) { $('aErr').textContent = err.message; bt.disabled = false; }
+      });
+    });
+}
+function abrirPago(r) {
+  modal('<h2>Registrar pago</h2><p class="item-m">' + esc(r.Referido) + ' · llevas ' + q(r.MontoTotal) + '</p>' +
+    '<form id="fPago"><label class="f" style="margin-top:12px">Monto pagado (Q)<input id="pMonto" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="99.00"></label>' +
+    '<label class="f" style="margin-top:10px">Nota (opcional)<input id="pNota" maxlength="120" placeholder="Evaluación Q99, limpieza, etc."></label>' +
+    '<p class="err" id="pErr"></p><button class="btn block" type="submit">Guardar pago</button></form><button class="btn ghost cerrar" type="button" id="pX">Cancelar</button>',
+    () => {
+      $('pMonto').focus(); $('pX').addEventListener('click', cerrarModal);
+      $('fPago').addEventListener('submit', async (e) => {
+        e.preventDefault(); const bt = e.target.querySelector('button[type=submit]'); bt.disabled = true;
+        try {
+          const nuevo = await api('pago', { token: r.Token, monto: $('pMonto').value, nota: $('pNota').value });
+          const i = S.rows.findIndex((x) => x.Token === r.Token); if (i >= 0) S.rows[i] = nuevo;
+          cerrarModal(); aviso('Pago guardado. Total: ' + q(nuevo.MontoTotal) + '.'); if (S.tab === 'lista') pintarItems();
+        } catch (err) { $('pErr').textContent = err.message; bt.disabled = false; }
+      });
+    });
+}
+
+/* ---------- resumen ---------- */
+function agrupar(rows, clave) {
+  const m = {};
+  rows.forEach((r) => { const k = clave(r); (m[k] = m[k] || []).push(r); });
+  return Object.keys(m).map((k) => Object.assign({ k, rows: m[k] }, cifras(m[k])))
+    .sort((a, b) => b.gen - a.gen || b.monto - a.monto || b.reg - a.reg);
+}
+function tablaGrupos(grupos, titulo1, conClinica) {
+  if (!grupos.length) return '<p class="vacio">Todavía no hay datos.</p>';
+  return '<div class="tabla-wrap"><table><thead><tr><th>' + titulo1 + '</th><th>Registrados</th><th>Generados</th><th>% acept.</th><th>Con cita</th><th>Nuevos</th><th>Monto</th></tr></thead><tbody>' +
+    grupos.map((g, i) => '<tr' + (i === 0 && g.gen > 0 ? ' class="top1"' : '') + '><td>' + esc(conClinica ? g.nombre : g.k) + (conClinica && g.clin ? '<span class="sub-cl">' + esc(g.clin) + '</span>' : '') + '</td><td>' + g.reg + '</td><td>' + g.gen + '</td><td>' + g.pct + '%</td><td>' + g.citas + '</td><td>' + g.asist + '</td><td>' + q(g.monto) + '</td></tr>').join('') +
+    '</tbody></table></div>';
+}
+function vistaResumen() {
+  const admin = S.rol === 'admin';
+  const meses = [...new Set(S.rows.map((r) => String(r.Fecha).slice(0, 7)))].sort().reverse();
+  let rows = S.rows.filter((r) => (!S.resumen.mes || String(r.Fecha).slice(0, 7) === S.resumen.mes) && (!S.resumen.clinica || r.Clinica === S.resumen.clinica));
+  const porDoc = agrupar(rows, (r) => r.Doctor + '||' + r.Clinica).map((g) => { const [d, c] = g.k.split('||'); return Object.assign(g, { nombre: d, clin: admin ? nombreClinica(c) : '' }); });
+  const porAse = agrupar(rows, (r) => asesorDe(r) + '||' + r.Clinica).map((g) => { const [a, c] = g.k.split('||'); return Object.assign(g, { nombre: a, clin: admin ? nombreClinica(c) : '' }); });
+  const porClin = agrupar(rows, (r) => r.Clinica).map((g) => Object.assign(g, { nombre: nombreClinica(g.k) }));
+  $('vista').innerHTML =
+    '<section class="panel"><h2>' + (admin ? 'Resumen general' : 'Resultados de tu clínica') + '</h2><p class="hint">Referido generado es el que aceptó la tarjeta o fue marcado como Aceptó, Cita agendada o Asistió.</p>' +
+    '<div class="filtros" style="grid-template-columns:1fr 1fr"><select id="sMes"><option value="">Todos los meses</option>' + meses.map((m) => '<option' + (S.resumen.mes === m ? ' selected' : '') + '>' + m + '</option>').join('') + '</select>' +
+    (admin ? '<select id="sClin"><option value="">Todas las clínicas</option>' + S.clinicas.map((c) => '<option value="' + c.codigo + '"' + (S.resumen.clinica === c.codigo ? ' selected' : '') + '>' + esc(c.nombre) + '</option>').join('') + '</select>' : '<span></span>') + '</div>' +
+    tiles(cifras(rows)) + '</section>' +
+    (admin ? '<section class="panel"><h2>Por clínica</h2>' + tablaGrupos(porClin, 'Clínica', true) + '</section>' : '') +
+    '<section class="panel"><h2>Por asesor</h2><p class="hint">Quién da seguimiento a los referidos.</p>' + tablaGrupos(porAse, 'Asesor', true) + '</section>' +
+    '<section class="panel"><h2>Por doctor</h2><p class="hint">Cada doctor responde por los referidos que genera.</p>' + tablaGrupos(porDoc, 'Doctor', true) + '</section>' +
+    '<section class="panel"><h2>Nombres de los pacientes</h2><p class="hint">Referidos generados en el periodo elegido.</p>' + listaNombres(rows.filter((r) => S.generados.includes(r.Estado))) + '</section>';
+  $('sMes').addEventListener('change', (e) => { S.resumen.mes = e.target.value; vistaResumen(); });
+  if (admin) $('sClin').addEventListener('change', (e) => { S.resumen.clinica = e.target.value; vistaResumen(); });
+}
+function listaNombres(rows) {
+  if (!rows.length) return '<p class="vacio">Aún no hay referidos generados.</p>';
+  return '<div class="tabla-wrap"><table><thead><tr><th>Paciente</th><th style="text-align:left">Doctor</th><th style="text-align:left">Asesor</th><th style="text-align:left">Clínica</th><th style="text-align:left">Estado</th><th>Monto</th></tr></thead><tbody>' +
+    rows.slice(0, 400).map((r) => '<tr><td>' + esc(r.Referido) + '</td><td style="text-align:left">' + esc(r.Doctor) + '</td><td style="text-align:left">' + esc(asesorDe(r)) + '</td><td style="text-align:left">' + esc(nombreClinica(r.Clinica)) + '</td><td style="text-align:left">' + r.Estado + '</td><td>' + q(r.MontoTotal) + '</td></tr>').join('') +
+    '</tbody></table></div>';
+}
+
+/* ---------- QR por clínica (gerencia) ---------- */
+function urlClinica(c) { return S.base + '?c=' + c; }
+function crearQR(el, texto, tam) {
+  el.innerHTML = '';
+  return new QRCode(el, { text: texto, width: tam, height: tam, colorDark: '#2A2C5E', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+}
+function vistaQR() {
+  if (!S.base) { $('vista').innerHTML = '<section class="panel"><h2>Códigos QR</h2><p class="vacio">Publica la app como aplicación web y vuelve a entrar: los QR se arman con la dirección de la app.</p></section>'; return; }
+  $('vista').innerHTML = '<section class="panel"><h2>Códigos QR por clínica</h2><p class="hint">Cada QR abre la app con la clínica ya elegida y pide el PIN de esa clínica. Imprime el cartel y colócalo en la oficina del asesor.</p><div class="qr-grid">' +
+    S.clinicas.map((c) => '<div class="qr-card"><h3>' + esc(c.nombre) + '</h3><div class="qr-box" id="qr_' + c.codigo + '"></div><div class="btns"><button class="btn sm" data-q="print" data-c="' + c.codigo + '">Imprimir cartel</button><button class="btn sec sm" data-q="png" data-c="' + c.codigo + '">Descargar QR</button><button class="btn sec sm" data-q="link" data-c="' + c.codigo + '">Copiar link</button></div></div>').join('') + '</div></section>';
+  S.clinicas.forEach((c) => crearQR($('qr_' + c.codigo), urlClinica(c.codigo), 170));
+}
+function qrCanvas(el) { const cv = el.querySelector('canvas'); if (cv) return cv; return el.querySelector('img'); }
+$('vista').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-q]'); if (!b) return;
+  const cod = b.dataset.c, cl = S.clinicas.find((c) => c.codigo === cod);
+  if (b.dataset.q === 'link') { if (await copiarTexto(urlClinica(cod))) aviso('Link copiado.'); }
+  else if (b.dataset.q === 'png') {
+    const src = qrCanvas($('qr_' + cod)); const out = document.createElement('canvas'); out.width = out.height = 560;
+    const c = out.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, 560, 560); c.drawImage(src, 30, 30, 500, 500);
+    out.toBlob((bl) => { const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'QR_' + cod + '.png'; document.body.appendChild(a); a.click(); a.remove(); }, 'image/png');
+  } else if (b.dataset.q === 'print') {
+    const pa = $('print-area');
+    pa.innerHTML = '<div class="poster"><img class="lg" alt="GrupoDent" src="' + window.GD_LOGO + '"><h2>Registro de referidos</h2><div class="cl">' + esc(cl.nombre) + '</div><div class="qrp" id="qrPrint"></div><p>Escanea el código con tu celular e ingresa con el PIN de tu clínica para registrar un referido.</p></div>';
+    crearQR($('qrPrint'), urlClinica(cod), 360);
+    setTimeout(() => { document.body.classList.add('imprimiendo'); window.print(); setTimeout(() => { document.body.classList.remove('imprimiendo'); pa.innerHTML = ''; }, 500); }, 250);
+  }
+});
+</script>
+</body>
+</html>
