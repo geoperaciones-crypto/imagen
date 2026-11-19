@@ -31,13 +31,13 @@
 </main>
 <script>
   // Dirección de la app de Referidos (termina en /exec).
-  var URL_APP = "https://script.google.com/a/grupodent.com.gt/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ouslptCZ_RTp5LhBCOldIZTjw5w/exec";
+  var URL_APP = "https://script.google.com/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ousIptCZ_RTp5LhBCOIdIZTjw5w/exec";
 
   var token = (new URLSearchParams(location.search).get("t") || "").replace(/[^A-Za-z0-9]/g, "");
   var destino = URL_APP + "?t=" + encodeURIComponent(token);
   document.getElementById("ir").href = destino;
   if (token) location.replace(destino);
 </script>
-<noscript><p><a href="https://script.google.com/a/grupodent.com.gt/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ouslptCZ_RTp5LhBCOldIZTjw5w/exec">Abrir mi tarjeta</a></p></noscript>
+<noscript><p><a href="https://script.google.com/macros/s/AKfycbzR0igEHjxUS2WU2j9TYf7jlIz_MRz4S2Amnynp0Y1ousIptCZ_RTp5LhBCOIdIZTjw5w/exec">Abrir mi tarjeta</a></p></noscript>
 </body>
 </html>
